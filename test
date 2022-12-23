@@ -1,3 +1,63 @@
 first line
 2nd line
 3rd line
+provider "aws" {
+  region = "ap-southeast-1"
+}
+
+
+resource "aws_instance" "web" {
+  ami           = "ami-005835d578c62050d"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "helloworld"
+  }
+}
+
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+resource "aws_subnet" "pubsub" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "pubsubnet"
+  }
+}
+
+resource "aws_subnet" "pvtsub" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "pubsubnet"
+  }
+}
+
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "igw"
+  }
+}
+
+resource "aws_route_table" "example" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
